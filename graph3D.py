@@ -1,5 +1,9 @@
 from mpl_toolkits.mplot3d import Axes3D
 from sympy import Symbol, diff, limit, oo
+from matplotlib import cm
+from matplotlib.patches import Circle, PathPatch
+from matplotlib.ticker import LinearLocator, FormatStrFormatter
+import mpl_toolkits.mplot3d.art3d as art3d
 import matplotlib.pyplot as plt
 import numpy as np
 import sympy as sym
@@ -16,24 +20,37 @@ def clear(): return os.system('cls')
 
 def draw():
     try:
-        print('Enter M: ', end='')
-        xval = parseInput('np')
-        print('Enter N: ', end='')
-        yval = parseInput('np')
-        print('Enter P: ', end='')
-        zval = parseInput('np')
         fig = plt.figure()
         ax = fig.gca(projection='3d')
-        x, y, z = np.meshgrid(np.arange(-5, 5, 1),
-                              np.arange(-5, 5, 1),
-                              np.arange(-5, 5, 1))
-        M = eval(xval)
-        N = eval(yval)
-        P = eval(zval)
-        ax.quiver(x, y, z, M, N, P, length=0.5, normalize=True)
+
+        # Define theta
+        theta = np.linspace(0, 2*np.pi, 50)
+
+        # cone
+        z = np.linspace(0, 10, 50)
+        theta_cone, z_cone = np.meshgrid(theta, z)
+        x_cone = (z_cone/2)*np.cos(theta_cone)
+        y_cone = (z_cone/2)*np.sin(theta_cone)
+        ax.plot_surface(x_cone, y_cone, z_cone)
+
+        # Cylinder
+        zc = np.linspace(0, 10, 50)
+        theta_cylinder, z_cylinder = np.meshgrid(theta, zc)
+        x_cylinder = 5*np.cos(theta_cylinder)
+        y_cylinder = 5*np.sin(theta_cylinder)
+        ax.plot_surface(x_cylinder, y_cylinder, z_cylinder, alpha=0.5)
+
+        # Flat
+        p = Circle((0, 0), 5, alpha=0.5)
+        ax.add_patch(p)
+        art3d.patch_2d_to_3d(p, z=0, zdir='z')
+
+        ax.set_zlim(0, 10)
+        ax.zaxis.set_major_locator(LinearLocator(10))
+        ax.zaxis.set_major_formatter(FormatStrFormatter('%.02f'))
         plt.show()
-    except:
-        print('Misspelled equations')
+    except Exception as err:
+        print(err)
 
 
 def partial():
